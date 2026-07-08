@@ -24,7 +24,6 @@ dist-ssr
 *.sw?
 
 .env
-.env*
 
 pnpm-lock.yaml
 yarn.lock
