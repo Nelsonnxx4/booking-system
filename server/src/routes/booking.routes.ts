@@ -1,25 +1,12 @@
 import { Router } from 'express'
-import { z } from 'zod'
 import { prisma } from '../lib/prisma.ts'
 import { requireAuth } from '../middleware/auth.ts'
 import { AppError } from '../utils/AppError.ts'
+import { createBookingSchema } from '../schemas/booking.schema.ts'
 
 export const bookingRouter = Router()
 
 bookingRouter.use(requireAuth)
-
-const createBookingSchema = z
-  .object({
-    roomId: z.string().uuid(),
-    checkIn: z.coerce.date(),
-    checkOut: z.coerce.date(),
-    guestCount: z.number().int().positive(),
-    specialNotes: z.string().optional(),
-  })
-  .refine((data) => data.checkOut > data.checkIn, {
-    message: 'checkOut must be after checkIn',
-    path: ['checkOut'],
-  })
 
 const ACTIVE_STATUSES = ['PENDING', 'CONFIRMED'] as const
 

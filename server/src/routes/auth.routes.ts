@@ -1,23 +1,11 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
-import { z } from 'zod'
 import { prisma } from '../lib/prisma.ts'
 import { signToken } from '../utils/jwt.ts'
 import { AppError } from '../utils/AppError.ts'
+import { registerSchema, loginSchema } from '../schemas/auth.schema.ts'
 
 export const authRouter = Router()
-
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().min(1),
-  phone: z.string().optional(),
-})
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-})
 
 function toPublicUser(user: { id: string; email: string; name: string; role: string }) {
   return { id: user.id, email: user.email, name: user.name, role: user.role }

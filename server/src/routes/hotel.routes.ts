@@ -1,29 +1,10 @@
 import { Router } from 'express'
-import { z } from 'zod'
 import { prisma } from '../lib/prisma.ts'
 import { requireAuth, requireRole } from '../middleware/auth.ts'
 import { AppError } from '../utils/AppError.ts'
+import { createHotelSchema, createRoomTypeSchema } from '../schemas/hotel.schema.ts'
 
 export const hotelRouter = Router()
-
-const createHotelSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  address: z.string().min(1),
-  city: z.string().min(1),
-  country: z.string().min(1),
-  timezone: z.string().default('UTC'),
-  images: z.array(z.string()).default([]),
-})
-
-const createRoomTypeSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  pricePerNight: z.number().positive(),
-  maxGuests: z.number().int().positive(),
-  amenities: z.array(z.string()).default([]),
-  images: z.array(z.string()).default([]),
-})
 
 // GET /hotels?city=Lagos - public
 hotelRouter.get('/', async (req, res) => {
