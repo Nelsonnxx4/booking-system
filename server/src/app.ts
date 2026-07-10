@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import { authRouter } from './routes/auth.routes.ts'
+import { hotelRouter } from './routes/hotel.routes.ts'
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.ts'
 
 export function createApp() {
@@ -16,6 +17,7 @@ export function createApp() {
   })
 
   app.use('/auth', authRouter)
+  app.use('/hotels', hotelRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)
