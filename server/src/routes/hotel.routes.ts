@@ -1,51 +1,33 @@
 import { Router } from 'express'
-import { prisma } from '../lib/prisma.ts'
 import { requireAuth, requireRole } from '../middleware/auth.ts'
-import { AppError } from '../utils/AppError.ts'
 import { createHotelSchema, createRoomTypeSchema } from '../schemas/hotel.schema.ts'
+import { listHotels, getHotelById, createHotel, addRoomType } from '../services/hotel.service.ts'
 
 export const hotelRouter = Router()
 
 // GET /hotels?city=Lagos - public
 hotelRouter.get('/', async (req, res) => {
   const city = typeof req.query.city === 'string' ? req.query.city : undefined
-
-  const hotels = await prisma.hotel.findMany({
-    where: city ? { city: { equals: city, mode: 'insensitive' } } : undefined,
-    orderBy: { name: 'asc' },
-  })
+  const hotels = await listHotels(city)
   res.json(hotels)
 })
 
 // GET /hotels/:id - public, includes room types
 hotelRouter.get('/:id', async (req, res) => {
-  const hotel = await prisma.hotel.findUnique({
-    where: { id: req.params.id },
-    include: { roomTypes: true },
-  })
-  if (!hotel) {
-    throw new AppError(404, 'Hotel not found')
-  }
+  const hotel = await getHotelById(req.params.id)
   res.json(hotel)
 })
 
 // POST /hotels - admin only
 hotelRouter.post('/', requireAuth, requireRole('ADMIN'), async (req, res) => {
-  const data = createHotelSchema.parse(req.body)
-  const hotel = await prisma.hotel.create({ data })
+  const input = createHotelSchema.parse(req.body)
+  const hotel = await createHotel(input)
   res.status(201).json(hotel)
 })
 
 // POST /hotels/:id/room-types - admin only
 hotelRouter.post('/:id/room-types', requireAuth, requireRole('ADMIN'), async (req, res) => {
-  const hotel = await prisma.hotel.findUnique({ where: { id: req.params.id } })
-  if (!hotel) {
-    throw new AppError(404, 'Hotel not found')
-  }
-
-  const data = createRoomTypeSchema.parse(req.body)
-  const roomType = await prisma.roomType.create({
-    data: { ...data, hotelId: hotel.id },
-  })
+  const input = createRoomTypeSchema.parse(req.body)
+  const roomType = await addRoomType(req.params.id, input)
   res.status(201).json(roomType)
 })
