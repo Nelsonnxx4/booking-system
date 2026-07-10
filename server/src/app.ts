@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import { authRouter } from './routes/auth.routes.ts'
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.ts'
 
 export function createApp() {
@@ -13,6 +14,8 @@ export function createApp() {
   app.get('/health', (req, res) => {
     res.json({ status: 'ok' })
   })
+
+  app.use('/auth', authRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)
