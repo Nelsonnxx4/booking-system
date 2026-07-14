@@ -55,7 +55,5 @@ export const loginUser = async (input: LoginInput) => {
 };
 
 export const logoutUser = () => {
-	// JWTs are stateless: there is nothing to invalidate server-side.
-	// The client is responsible for discarding the token.
 	return { message: "Logged out" };
 };
